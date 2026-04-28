@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
-export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/pie-delts/' : '/',
+export default defineConfig({
+  base: '/',
   plugins: [react()],
-}))
+})

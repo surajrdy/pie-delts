@@ -7,6 +7,7 @@ Donation website for MIT Phi Delts' Pie Delts 2026 fundraiser.
 - Venmo: `mitpdt`
 - Zelle: `phi-treasurer@mit.edu`
 - Payment description format: `Pie-[group name]-[names of people you want to pie]`
+- Pricing: `$5` for 1 pie, `$12` for 3 pies
 
 ## Development
 
@@ -24,4 +25,7 @@ npm run build
 
 ## Deployment
 
-The included GitHub Actions workflow builds the Vite site and deploys `dist/` to GitHub Pages on pushes to `main`.
+Netlify builds the site from GitHub using `npm run build` and publishes `dist/`.
+
+- Netlify subdomain: `https://piedelts.netlify.app/`
+- Intended custom domain: `https://piedelts.org/`

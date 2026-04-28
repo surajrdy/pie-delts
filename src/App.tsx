@@ -1,33 +1,24 @@
 import { useMemo, useState } from 'react'
 import { QRCodeCanvas } from 'qrcode.react'
-import {
-  CalendarDays,
-  Check,
-  Clock,
-  Copy,
-  ExternalLink,
-  HeartHandshake,
-  Landmark,
-  MapPin,
-  Send,
-  Sparkles,
-  Trophy,
-  Users,
-} from 'lucide-react'
 import './App.css'
 
 const VENMO_USERNAME = 'mitpdt'
 const ZELLE_EMAIL = 'phi-treasurer@mit.edu'
 const NOTE_LIMIT = 280
 
-const amountOptions = ['5', '10', '25', '50']
+const pieOptions = [
+  { label: '1 pie', amount: '5', helper: '$5' },
+  { label: '3 pies', amount: '12', helper: '$12' },
+  { label: '6 pies', amount: '24', helper: '$4 each' },
+]
 
 type CopiedState = 'note' | 'venmo' | 'zelle' | null
 
 function App() {
   const [groupName, setGroupName] = useState('')
   const [pieTargets, setPieTargets] = useState('')
-  const [amount, setAmount] = useState('10')
+  const [presetAmount, setPresetAmount] = useState('10')
+  const [customAmount, setCustomAmount] = useState('')
   const [copied, setCopied] = useState<CopiedState>(null)
 
   const donationNote = useMemo(() => {
@@ -37,9 +28,10 @@ function App() {
   }, [groupName, pieTargets])
 
   const normalizedAmount = useMemo(() => {
+    const amount = customAmount.trim() || presetAmount
     const parsed = Number(amount)
     return Number.isFinite(parsed) && parsed > 0 ? parsed.toFixed(2) : ''
-  }, [amount])
+  }, [customAmount, presetAmount])
 
   const venmoUrl = useMemo(() => {
     const params = new URLSearchParams({
@@ -85,68 +77,39 @@ Description: ${donationNote}`
     window.setTimeout(() => setCopied(null), 1800)
   }
 
-  const openZelle = () => {
-    window.open('https://www.zellepay.com/get-started', '_blank', 'noopener,noreferrer')
-    void copyText(zelleDetails, 'zelle')
+  const selectPresetAmount = (value: string) => {
+    setPresetAmount(value)
+    setCustomAmount('')
+  }
+
+  const updateCustomAmount = (value: string) => {
+    setPresetAmount('')
+    setCustomAmount(value)
   }
 
   return (
     <main className="page-shell">
-      <header className="site-header" aria-label="Pie Delts navigation">
-        <a className="brand" href="#top" aria-label="Pie Delts home">
-          <span className="brand-mark">PD</span>
-          <span>Pie Delts</span>
-        </a>
-        <nav>
-          <a href="#donate">Donate</a>
-          <a href="#impact">Impact</a>
-          <a href="#faq">FAQ</a>
-        </nav>
-      </header>
-
       <section className="hero-section" id="top">
         <div className="hero-copy">
-          <p className="eyebrow">MIT Phi Delts Community Service</p>
-          <h1 className="cloud-title">Donate now for Pie Delts 2026</h1>
+          <h1 className="cloud-title">Pie Delts 2026</h1>
           <p className="hero-lede">
             Friday, May 1, 2026 from 5-8 PM on Kresge Oval. Donate with the
             description <strong>Pie-[group name]-[names of people you want to pie]</strong>.
           </p>
 
           <div className="event-strip" aria-label="Event details">
-            <span>
-              <CalendarDays aria-hidden="true" />
-              Fri, May 1
-            </span>
-            <span>
-              <Clock aria-hidden="true" />
-              5-8 PM
-            </span>
-            <span>
-              <MapPin aria-hidden="true" />
-              Kresge Oval
-            </span>
-          </div>
-
-          <div className="hero-actions">
-            <a className="primary-link" href="#donate">
-              <Send aria-hidden="true" />
-              Build payment
-            </a>
-            <a className="secondary-link" href="#impact">
-              <HeartHandshake aria-hidden="true" />
-              Where it goes
-            </a>
+            <span>Friday, May 1</span>
+            <span>5-8 PM</span>
+            <span>Kresge Oval</span>
           </div>
         </div>
 
         <section className="donation-panel" id="donate" aria-labelledby="donate-heading">
           <div className="panel-heading">
-            <p className="eyebrow">Payment layer</p>
-            <h2 id="donate-heading">Make the note once.</h2>
+            <h2 className="cloud-subtitle" id="donate-heading">DONATE NOW!</h2>
             <p>
-              Fill in the group and names, then send through Venmo or copy the same
-              details into Zelle.
+              Fill in the group and names, pick a pie amount, then send through
+              Venmo or copy the same details for Zelle.
             </p>
           </div>
 
@@ -174,16 +137,18 @@ Description: ${donationNote}`
             </label>
 
             <div className="amount-field">
-              <span>Donation amount</span>
+              <span>Pie conversion</span>
+              <p className="pricing-note">$5 for 1 pie / $12 for 3 pies</p>
               <div className="amount-row" aria-label="Donation amount quick picks">
-                {amountOptions.map((value) => (
+                {pieOptions.map(({ label, amount, helper }) => (
                   <button
-                    className={amount === value ? 'is-selected' : ''}
-                    key={value}
+                    className={presetAmount === amount && !customAmount ? 'is-selected' : ''}
+                    key={label}
                     type="button"
-                    onClick={() => setAmount(value)}
+                    onClick={() => selectPresetAmount(amount)}
                   >
-                    ${value}
+                    <strong>{label}</strong>
+                    <small>{helper}</small>
                   </button>
                 ))}
                 <label className="custom-amount">
@@ -192,10 +157,10 @@ Description: ${donationNote}`
                     aria-label="Custom donation amount"
                     inputMode="decimal"
                     min="1"
-                    onChange={(event) => setAmount(event.target.value)}
+                    onChange={(event) => updateCustomAmount(event.target.value)}
                     placeholder="Other"
                     type="number"
-                    value={amount}
+                    value={customAmount}
                   />
                 </label>
               </div>
@@ -210,31 +175,23 @@ Description: ${donationNote}`
 
           <div className="payment-grid">
             <a className="pay-button venmo" href={venmoUrl} rel="noreferrer" target="_blank">
-              <ExternalLink aria-hidden="true" />
               Pay @mitpdt
             </a>
             <button
               className="pay-button zelle"
               type="button"
-              onClick={openZelle}
+              onClick={() => void copyText(zelleDetails, 'zelle')}
             >
-              <Landmark aria-hidden="true" />
-              Open Zelle
+              {copied === 'zelle' ? 'Copied Zelle details' : 'Copy Zelle details'}
             </button>
           </div>
 
           <div className="copy-row" aria-label="Copy payment details">
             <button type="button" onClick={() => void copyText(donationNote, 'note')}>
-              {copied === 'note' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
               {copied === 'note' ? 'Copied note' : 'Copy note'}
             </button>
             <button type="button" onClick={() => void copyText(venmoDetails, 'venmo')}>
-              {copied === 'venmo' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
               {copied === 'venmo' ? 'Copied Venmo' : 'Copy Venmo'}
-            </button>
-            <button type="button" onClick={() => void copyText(zelleDetails, 'zelle')}>
-              {copied === 'zelle' ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-              {copied === 'zelle' ? 'Copied Zelle' : 'Copy Zelle'}
             </button>
           </div>
 
@@ -249,32 +206,6 @@ Description: ${donationNote}`
             </div>
           </div>
         </section>
-      </section>
-
-      <section className="rules-band" aria-label="Fundraiser rules">
-        <article>
-          <Trophy aria-hidden="true" />
-          <h2>Group challenge</h2>
-          <p>
-            The group with the most donations receives a matched donation to an
-            organization of their choice and a special gift from the Community Service chairs.
-          </p>
-        </article>
-        <article>
-          <Users aria-hidden="true" />
-          <h2>Brother challenge</h2>
-          <p>
-            The brother who raises the most pies will be pied by Sally Kornbluth.
-          </p>
-        </article>
-        <article>
-          <Sparkles aria-hidden="true" />
-          <h2>Remote pies</h2>
-          <p>
-            If you cannot be there Friday, brothers can take custom videos or someone
-            can pie in your place.
-          </p>
-        </article>
       </section>
 
       <section className="impact-section" id="impact">
@@ -298,35 +229,7 @@ Description: ${donationNote}`
           target="_blank"
         >
           @7uicefoundation
-          <ExternalLink aria-hidden="true" />
         </a>
-      </section>
-
-      <section className="faq-section" id="faq">
-        <p className="eyebrow">FAQ</p>
-        <h2 className="cloud-subtitle">Cloud notes</h2>
-        <div className="faq-list">
-          <details>
-            <summary>Can I use Zelle?</summary>
-            <p>
-              Yes. Send to <strong>{ZELLE_EMAIL}</strong> and paste the generated
-              description into the memo field.
-            </p>
-          </details>
-          <details>
-            <summary>What does group mean?</summary>
-            <p>
-              Any club, team, living group, family, or friend group you want the
-              donation counted toward.
-            </p>
-          </details>
-          <details>
-            <summary>Who do I contact?</summary>
-            <p>
-              Reach out to MIT Phi Delts with any questions. Happy Pie Delts.
-            </p>
-          </details>
-        </div>
       </section>
     </main>
   )
