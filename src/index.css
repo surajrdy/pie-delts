@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --blue-dark: #053a75;
+  --blue-mid: #006fe6;
+  --cream: #fff2c4;
+  --crust: #f5b44b;
+  --ink: #092540;
+  --muted: #45637d;
+  --white: #ffffff;
+  --cloud: 'Bagel Fat One', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+input {
+  letter-spacing: 0;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid rgba(255, 242, 196, 0.92);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: rgba(255, 242, 196, 0.86);
+  color: var(--blue-dark);
+}
