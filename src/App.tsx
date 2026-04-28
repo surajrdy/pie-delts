@@ -7,9 +7,8 @@ const ZELLE_EMAIL = 'phi-treasurer@mit.edu'
 const NOTE_LIMIT = 280
 
 const pieOptions = [
-  { label: '1 pie', amount: '5', helper: '$5' },
-  { label: '3 pies', amount: '12', helper: '$12' },
-  { label: '6 pies', amount: '24', helper: '$4 each' },
+  { label: '1 pie', count: '1', helper: '$5' },
+  { label: '3 pies', count: '3', helper: '$12' },
 ]
 
 type CopiedState = 'note' | 'venmo' | 'zelle' | null
@@ -17,8 +16,7 @@ type CopiedState = 'note' | 'venmo' | 'zelle' | null
 function App() {
   const [groupName, setGroupName] = useState('')
   const [pieTargets, setPieTargets] = useState('')
-  const [presetAmount, setPresetAmount] = useState('10')
-  const [customAmount, setCustomAmount] = useState('')
+  const [pieCount, setPieCount] = useState('1')
   const [copied, setCopied] = useState<CopiedState>(null)
 
   const donationNote = useMemo(() => {
@@ -27,11 +25,34 @@ function App() {
     return `Pie-${group}-${targets}`.slice(0, NOTE_LIMIT)
   }, [groupName, pieTargets])
 
-  const normalizedAmount = useMemo(() => {
-    const amount = customAmount.trim() || presetAmount
-    const parsed = Number(amount)
-    return Number.isFinite(parsed) && parsed > 0 ? parsed.toFixed(2) : ''
-  }, [customAmount, presetAmount])
+  const selectedPieCount = useMemo(() => {
+    const parsed = Math.floor(Number(pieCount))
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 0
+  }, [pieCount])
+
+  const pieConversion = useMemo(() => {
+    if (!selectedPieCount) {
+      return {
+        amount: '',
+        description: 'Enter a pie count to calculate the donation.',
+      }
+    }
+
+    const bundles = Math.floor(selectedPieCount / 3)
+    const singles = selectedPieCount % 3
+    const amount = bundles * 12 + singles * 5
+    const pieces = [
+      bundles ? `${bundles} x 3-pie ${bundles === 1 ? 'bundle' : 'bundles'}` : '',
+      singles ? `${singles} ${singles === 1 ? 'single' : 'singles'}` : '',
+    ].filter(Boolean)
+
+    return {
+      amount: amount.toFixed(2),
+      description: `${selectedPieCount} ${selectedPieCount === 1 ? 'pie' : 'pies'} = $${amount} (${pieces.join(' + ')})`,
+    }
+  }, [selectedPieCount])
+
+  const normalizedAmount = pieConversion.amount
 
   const venmoUrl = useMemo(() => {
     const params = new URLSearchParams({
@@ -48,10 +69,12 @@ function App() {
 
   const venmoDetails = `Venmo: @${VENMO_USERNAME}
 Amount: ${normalizedAmount ? `$${normalizedAmount}` : '[your amount]'}
+Pies: ${selectedPieCount || '[number of pies]'}
 Description: ${donationNote}`
 
   const zelleDetails = `Zelle recipient: ${ZELLE_EMAIL}
 Amount: ${normalizedAmount ? `$${normalizedAmount}` : '[your amount]'}
+Pies: ${selectedPieCount || '[number of pies]'}
 Description: ${donationNote}`
 
   const writeClipboard = async (text: string) => {
@@ -77,14 +100,8 @@ Description: ${donationNote}`
     window.setTimeout(() => setCopied(null), 1800)
   }
 
-  const selectPresetAmount = (value: string) => {
-    setPresetAmount(value)
-    setCustomAmount('')
-  }
-
-  const updateCustomAmount = (value: string) => {
-    setPresetAmount('')
-    setCustomAmount(value)
+  const updatePieCount = (value: string) => {
+    setPieCount(value.replace(/[^\d]/g, ''))
   }
 
   return (
@@ -140,30 +157,32 @@ Description: ${donationNote}`
               <span>Pie conversion</span>
               <p className="pricing-note">$5 for 1 pie / $12 for 3 pies</p>
               <div className="amount-row" aria-label="Donation amount quick picks">
-                {pieOptions.map(({ label, amount, helper }) => (
+                {pieOptions.map(({ label, count, helper }) => (
                   <button
-                    className={presetAmount === amount && !customAmount ? 'is-selected' : ''}
+                    className={pieCount === count ? 'is-selected' : ''}
                     key={label}
                     type="button"
-                    onClick={() => selectPresetAmount(amount)}
+                    onClick={() => setPieCount(count)}
                   >
                     <strong>{label}</strong>
                     <small>{helper}</small>
                   </button>
                 ))}
                 <label className="custom-amount">
-                  <span>$</span>
+                  <span>Pies</span>
                   <input
-                    aria-label="Custom donation amount"
-                    inputMode="decimal"
+                    aria-label="Number of pies"
+                    inputMode="numeric"
                     min="1"
-                    onChange={(event) => updateCustomAmount(event.target.value)}
-                    placeholder="Other"
+                    onChange={(event) => updatePieCount(event.target.value)}
+                    placeholder="Number"
+                    step="1"
                     type="number"
-                    value={customAmount}
+                    value={pieCount}
                   />
                 </label>
               </div>
+              <strong className="conversion-result">{pieConversion.description}</strong>
             </div>
 
             <div className="note-box">

@@ -7,7 +7,7 @@ Donation website for MIT Phi Delts' Pie Delts 2026 fundraiser.
 - Venmo: `mitpdt`
 - Zelle: `phi-treasurer@mit.edu`
 - Payment description format: `Pie-[group name]-[names of people you want to pie]`
-- Pricing: `$5` for 1 pie, `$12` for 3 pies
+- Pricing: `$5` for 1 pie, `$12` for each 3-pie bundle; custom pie counts are converted into the cheapest bundle/single combination.
 
 ## Development
 

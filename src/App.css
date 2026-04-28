@@ -19,6 +19,27 @@
   position: absolute;
 }
 
+.page-shell::after {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 247, 218, 0.98) 0 22%, transparent 23%),
+    radial-gradient(ellipse at 44% 36%, #d88a33 0 7%, transparent 8%),
+    radial-gradient(ellipse at 57% 42%, #c8752c 0 5%, transparent 6%),
+    linear-gradient(145deg, transparent 44%, rgba(255, 237, 182, 0.55) 45% 47%, transparent 48%),
+    linear-gradient(35deg, transparent 43%, rgba(255, 237, 182, 0.5) 44% 47%, transparent 48%),
+    radial-gradient(ellipse at 50% 56%, #f2b85e 0 52%, #bd6e28 53% 61%, transparent 62%);
+  bottom: clamp(28px, 6vw, 74px);
+  content: '';
+  filter: drop-shadow(0 16px 22px rgba(30, 89, 129, 0.16));
+  height: clamp(70px, 12vw, 128px);
+  opacity: 0.64;
+  pointer-events: none;
+  position: absolute;
+  right: clamp(-28px, 5vw, 84px);
+  transform: rotate(-7deg);
+  width: clamp(140px, 22vw, 250px);
+  z-index: 0;
+}
+
 .hero-section,
 .impact-section {
   margin: 0 auto;
@@ -32,12 +53,13 @@
   gap: clamp(34px, 5vw, 76px);
   grid-template-columns: minmax(0, 1.06fr) minmax(330px, 0.74fr);
   min-height: 100svh;
-  padding: clamp(44px, 8vw, 118px) clamp(18px, 4vw, 44px) clamp(52px, 8vw, 94px);
+  padding: clamp(24px, 5vw, 72px) clamp(18px, 4vw, 44px) clamp(52px, 8vw, 94px);
 }
 
 .hero-copy {
-  align-self: center;
+  align-self: start;
   max-width: 780px;
+  padding-top: clamp(6px, 3vh, 44px);
 }
 
 .eyebrow {
@@ -167,7 +189,7 @@
 .amount-row {
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(102px, 1.15fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr)) minmax(120px, 1.35fr);
 }
 
 .pricing-note {
@@ -224,6 +246,8 @@
 
 .amount-field .custom-amount span {
   color: var(--blue-dark);
+  font-size: 0.86rem;
+  font-weight: 900;
   text-shadow: none;
   text-transform: none;
 }
@@ -237,6 +261,15 @@
   min-height: auto;
   padding: 0;
   width: auto;
+}
+
+.conversion-result {
+  color: var(--cream);
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-shadow: 0 2px 14px rgba(0, 45, 96, 0.28);
+  text-transform: none;
 }
 
 .note-box {
@@ -379,7 +412,7 @@
 
   .hero-section {
     min-height: auto;
-    padding-top: 42px;
+    padding-top: 24px;
   }
 
   .donation-panel {
