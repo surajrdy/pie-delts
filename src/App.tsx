@@ -106,7 +106,8 @@ Description: ${donationNote}`
           <h1 className="cloud-title">Pie Delts 2026</h1>
           <p className="hero-lede">
             Friday, May 1, 2026 from 5-8 PM on Kresge Oval. Donate with the
-            description <strong>Pie-[group name]-[names of people you want to pie]</strong>.
+            description{' '}
+            <strong>Pie-[group name]-[names of people you want to pie]</strong>.
           </p>
 
           <div className="event-strip" aria-label="Event details">
