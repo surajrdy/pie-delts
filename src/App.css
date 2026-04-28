@@ -19,27 +19,6 @@
   position: absolute;
 }
 
-.page-shell::after {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(255, 247, 218, 0.98) 0 22%, transparent 23%),
-    radial-gradient(ellipse at 44% 36%, #d88a33 0 7%, transparent 8%),
-    radial-gradient(ellipse at 57% 42%, #c8752c 0 5%, transparent 6%),
-    linear-gradient(145deg, transparent 44%, rgba(255, 237, 182, 0.55) 45% 47%, transparent 48%),
-    linear-gradient(35deg, transparent 43%, rgba(255, 237, 182, 0.5) 44% 47%, transparent 48%),
-    radial-gradient(ellipse at 50% 56%, #f2b85e 0 52%, #bd6e28 53% 61%, transparent 62%);
-  bottom: clamp(28px, 6vw, 74px);
-  content: '';
-  filter: drop-shadow(0 16px 22px rgba(30, 89, 129, 0.16));
-  height: clamp(70px, 12vw, 128px);
-  opacity: 0.64;
-  pointer-events: none;
-  position: absolute;
-  right: clamp(-28px, 5vw, 84px);
-  transform: rotate(-7deg);
-  width: clamp(140px, 22vw, 250px);
-  z-index: 0;
-}
-
 .hero-section,
 .impact-section {
   margin: 0 auto;

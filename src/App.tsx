@@ -72,11 +72,6 @@ Amount: ${normalizedAmount ? `$${normalizedAmount}` : '[your amount]'}
 Pies: ${selectedPieCount || '[number of pies]'}
 Description: ${donationNote}`
 
-  const zelleDetails = `Zelle recipient: ${ZELLE_EMAIL}
-Amount: ${normalizedAmount ? `$${normalizedAmount}` : '[your amount]'}
-Pies: ${selectedPieCount || '[number of pies]'}
-Description: ${donationNote}`
-
   const writeClipboard = async (text: string) => {
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(text)
@@ -199,9 +194,9 @@ Description: ${donationNote}`
             <button
               className="pay-button zelle"
               type="button"
-              onClick={() => void copyText(zelleDetails, 'zelle')}
+              onClick={() => void copyText(ZELLE_EMAIL, 'zelle')}
             >
-              {copied === 'zelle' ? 'Copied Zelle details' : 'Copy Zelle details'}
+              {copied === 'zelle' ? 'Copied Zelle email' : 'Copy Zelle email'}
             </button>
           </div>
 
