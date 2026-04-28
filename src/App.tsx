@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { QRCodeCanvas } from 'qrcode.react'
 import './App.css'
 
 const VENMO_USERNAME = 'mitpdt'
 const ZELLE_EMAIL = 'phi-treasurer@mit.edu'
 const NOTE_LIMIT = 280
+const LEADERBOARD_REFRESH_MS = 5 * 60 * 60 * 1000
 
 const pieOptions = [
   { label: '1 pie', count: '1', helper: '$5' },
@@ -13,11 +14,97 @@ const pieOptions = [
 
 type CopiedState = 'note' | 'venmo' | 'zelle' | null
 
+type LeaderboardEntry = {
+  name: string
+  pies: number
+}
+
+type LeaderboardData = {
+  updatedAt: string
+  refreshHours: number
+  brothers: LeaderboardEntry[]
+  groups: LeaderboardEntry[]
+}
+
+function formatPies(pies: number) {
+  return `${pies} ${pies === 1 ? 'pie' : 'pies'}`
+}
+
+function LeaderboardList({
+  entries,
+  emptyLabel,
+}: {
+  entries: LeaderboardEntry[]
+  emptyLabel: string
+}) {
+  if (!entries.length) {
+    return <p className="leaderboard-empty">{emptyLabel}</p>
+  }
+
+  return (
+    <ol className="leaderboard-list">
+      {entries.map((entry, index) => (
+        <li key={`${entry.name}-${index}`}>
+          <span className="rank">{index + 1}</span>
+          <strong>{entry.name}</strong>
+          <span>{formatPies(entry.pies)}</span>
+        </li>
+      ))}
+    </ol>
+  )
+}
+
 function App() {
   const [groupName, setGroupName] = useState('')
   const [pieTargets, setPieTargets] = useState('')
   const [pieCount, setPieCount] = useState('1')
   const [copied, setCopied] = useState<CopiedState>(null)
+  const [leaderboard, setLeaderboard] = useState<LeaderboardData | null>(null)
+  const [leaderboardError, setLeaderboardError] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+    let activeController: AbortController | null = null
+
+    const loadLeaderboard = async () => {
+      activeController?.abort()
+      const controller = new AbortController()
+      activeController = controller
+
+      try {
+        const response = await fetch(`/api/leaderboard?ts=${Date.now()}`, {
+          signal: controller.signal,
+        })
+
+        if (!response.ok) {
+          throw new Error(`Leaderboard request failed with ${response.status}`)
+        }
+
+        const data = (await response.json()) as LeaderboardData
+
+        if (isMounted) {
+          setLeaderboard(data)
+          setLeaderboardError('')
+        }
+      } catch (error) {
+        if (controller.signal.aborted || !isMounted) {
+          return
+        }
+
+        console.error(error)
+        setLeaderboardError('Leaderboard is temporarily unavailable.')
+      }
+    }
+
+    void loadLeaderboard()
+    const intervalId = window.setInterval(() => void loadLeaderboard(), LEADERBOARD_REFRESH_MS)
+
+    return () => {
+      isMounted = false
+      activeController?.abort()
+      window.clearInterval(intervalId)
+    }
+  }, [])
 
   const donationNote = useMemo(() => {
     const group = groupName.trim() || '[group name]'
@@ -53,6 +140,25 @@ function App() {
   }, [selectedPieCount])
 
   const normalizedAmount = pieConversion.amount
+
+  const leaderboardStatus = useMemo(() => {
+    if (leaderboardError) {
+      return leaderboard ? 'Using the last loaded totals.' : leaderboardError
+    }
+
+    if (!leaderboard) {
+      return 'Loading live totals...'
+    }
+
+    const updatedAt = new Date(leaderboard.updatedAt)
+
+    return `Updated ${new Intl.DateTimeFormat(undefined, {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(updatedAt)}. Refreshes every ${leaderboard.refreshHours} hours.`
+  }, [leaderboard, leaderboardError])
 
   const venmoUrl = useMemo(() => {
     const params = new URLSearchParams({
@@ -221,6 +327,38 @@ Description: ${donationNote}`
             </div>
           </div>
         </section>
+      </section>
+
+      <section className="leaderboard-section" id="leaderboard" aria-labelledby="leaderboard-heading">
+        <div className="leaderboard-heading">
+          <p className="eyebrow">Live totals</p>
+          <h2 className="cloud-subtitle" id="leaderboard-heading">Leaderboard</h2>
+          <p>{leaderboardStatus}</p>
+        </div>
+
+        <div className="leaderboard-grid">
+          <article className="leaderboard-panel">
+            <div className="leaderboard-panel-heading">
+              <h3>Top Brothers</h3>
+              <span>Most pies</span>
+            </div>
+            <LeaderboardList
+              entries={leaderboard?.brothers ?? []}
+              emptyLabel={leaderboardError || 'Waiting for brother totals.'}
+            />
+          </article>
+
+          <article className="leaderboard-panel">
+            <div className="leaderboard-panel-heading">
+              <h3>Top Groups</h3>
+              <span>Most donated</span>
+            </div>
+            <LeaderboardList
+              entries={leaderboard?.groups ?? []}
+              emptyLabel="Group totals will show here once they are listed."
+            />
+          </article>
+        </div>
       </section>
 
       <section className="impact-section" id="impact">

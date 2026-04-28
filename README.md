@@ -23,6 +23,15 @@ npm run lint
 npm run build
 ```
 
+## Leaderboard
+
+The site reads top-5 leaderboard data through the Netlify Function at `/api/leaderboard`.
+
+- Spreadsheet: `https://docs.google.com/spreadsheets/d/1yEqKEgDuustlwxYinGIzCGwybixrZIEMLFkTcDwCn5w/edit`
+- Brother source: `Sheet1`, with names in column A and total pies in column B.
+- Group source: a tab named `Groups`, with `Group` in column A and `Total Pies` in column B.
+- Browser refresh interval: 5 hours.
+
 ## Deployment
 
 Netlify builds the site from GitHub using `npm run build` and publishes `dist/`.
