@@ -1,26 +1,27 @@
 const SPREADSHEET_ID = '1yEqKEgDuustlwxYinGIzCGwybixrZIEMLFkTcDwCn5w'
 const TOP_COUNT = 5
+const REFRESH_MINUTES = 30
 
 const SHEETS = {
-  brothers: 'Sheet1',
-  groups: 'Groups',
+  brothers: '0',
+  groups: '1049888553',
 }
 
-function csvUrl(sheetName) {
+function csvUrl(gid) {
   const params = new URLSearchParams({
-    tqx: 'out:csv',
-    sheet: sheetName,
+    format: 'csv',
+    gid,
     cacheBust: Date.now().toString(),
   })
 
-  return `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?${params.toString()}`
+  return `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?${params.toString()}`
 }
 
-async function fetchCsv(sheetName) {
-  const response = await fetch(csvUrl(sheetName))
+async function fetchCsv(gid) {
+  const response = await fetch(csvUrl(gid))
 
   if (!response.ok) {
-    throw new Error(`Google Sheets returned ${response.status} for ${sheetName}`)
+    throw new Error(`Google Sheets returned ${response.status} for gid ${gid}`)
   }
 
   return response.text()
@@ -101,14 +102,12 @@ function parseLeaderboard(csv, kind) {
       : findColumn(headers, ['group', 'groups', 'team', 'club', 'organization'])
   let piesIndex = findColumn(headers, ['total pies', 'pies', 'pie count', 'total', 'count'])
 
-  if (kind === 'brothers') {
-    if (nameIndex === -1) {
-      nameIndex = 0
-    }
+  if (nameIndex === -1) {
+    nameIndex = 0
+  }
 
-    if (piesIndex === -1) {
-      piesIndex = 1
-    }
+  if (piesIndex === -1) {
+    piesIndex = 1
   }
 
   if (nameIndex === -1 || piesIndex === -1) {
@@ -151,7 +150,7 @@ exports.handler = async () => {
       },
       body: JSON.stringify({
         updatedAt: new Date().toISOString(),
-        refreshHours: 5,
+        refreshMinutes: REFRESH_MINUTES,
         brothers: parseLeaderboard(brotherCsv.value, 'brothers'),
         groups,
       }),

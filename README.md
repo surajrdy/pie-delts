@@ -28,9 +28,9 @@ npm run build
 The site reads top-5 leaderboard data through the Netlify Function at `/api/leaderboard`.
 
 - Spreadsheet: `https://docs.google.com/spreadsheets/d/1yEqKEgDuustlwxYinGIzCGwybixrZIEMLFkTcDwCn5w/edit`
-- Brother source: `Sheet1`, with names in column A and total pies in column B.
-- Group source: a tab named `Groups`, with `Group` in column A and `Total Pies` in column B.
-- Browser refresh interval: 5 hours.
+- Brother source: gid `0`, with names in column A and total pies in column B.
+- Group source: gid `1049888553`, with group names in column A and total pies in column B.
+- Browser refresh interval: 30 minutes.
 
 ## Deployment
 

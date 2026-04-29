@@ -5,7 +5,8 @@ import './App.css'
 const VENMO_USERNAME = 'mitpdt'
 const ZELLE_EMAIL = 'phi-treasurer@mit.edu'
 const NOTE_LIMIT = 280
-const LEADERBOARD_REFRESH_MS = 5 * 60 * 60 * 1000
+const LEADERBOARD_REFRESH_MINUTES = 30
+const LEADERBOARD_REFRESH_MS = LEADERBOARD_REFRESH_MINUTES * 60 * 1000
 
 const pieOptions = [
   { label: '1 pie', count: '1', helper: '$5' },
@@ -21,7 +22,7 @@ type LeaderboardEntry = {
 
 type LeaderboardData = {
   updatedAt: string
-  refreshHours: number
+  refreshMinutes: number
   brothers: LeaderboardEntry[]
   groups: LeaderboardEntry[]
 }
@@ -157,7 +158,7 @@ function App() {
       day: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
-    }).format(updatedAt)}. Refreshes every ${leaderboard.refreshHours} hours.`
+    }).format(updatedAt)}. Refreshes every ${leaderboard.refreshMinutes} minutes.`
   }, [leaderboard, leaderboardError])
 
   const venmoUrl = useMemo(() => {
